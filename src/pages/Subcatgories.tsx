@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Layout from "../components/Layout/Layout";
 import SubcategoriesList from "../components/Subcategories/SubcategoriesList";
 import {useState} from "react";
@@ -7,23 +7,60 @@ import Spinner from "../components/UI/Spinner";
 import AddSubcategories from "../components/Subcategories/AddSubcategories";
 import {useHttpGet} from "../api/use-http";
 import Pagination from "../components/UI/Pagination";
+import SearchSort from "../components/UI/SearchSort";
 
 const Subcategories = () => {
-    const [subcategories, setSubcategories] = useState<CategoryModel[]>([]);
+    const [allSubcategories, seAlltSubcategories] = useState<CategoryModel[]>([]);
+    const [filteredSubcategories, setFilteredSubcategories] = useState<CategoryModel[]>([]);
+    const [filters, setFilters] = useState({
+        s: '',
+        sort: true
+    })
 
     const applySubcategories = (data: CategoryModel[]) => {
-        setSubcategories(data);
+        seAlltSubcategories(data);
+        setFilteredSubcategories(data);
     }
     const {error, loading} = useHttpGet('subcategories', applySubcategories);
 
     // Add Subcategories
     const addSubcategoriesHandler = (obj: any) => {
-        setSubcategories(subcategories => subcategories.concat(obj));
+        setFilteredSubcategories(subcategories => subcategories.concat(obj));
     }
 
     const deleteItemHandler = (id:number) => {
-        setSubcategories((subcategories) => subcategories.filter(subcategory => subcategory.id !== id));
+        setFilteredSubcategories((subcategories) => subcategories.filter(subcategory => subcategory.id !== id));
     }
+
+    useEffect(() => {
+        let subcategories = allSubcategories.filter(subcategory => subcategory.name.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0)
+
+        if(filters.sort === false) {
+            subcategories.sort((a, b) => {
+                if(a.id > b.id) {
+                    return 1;
+                }
+                if(a.id < b.id) {
+                    return -1;
+                }
+
+                return 0;
+            })
+        } else if(filters.sort === true) {
+            subcategories.sort((a, b) => {
+                if(a.id > b.id) {
+                    return -1;
+                }
+                if(a.id < b.id) {
+                    return 1;
+                }
+
+                return 0;
+            })
+        }
+
+        setFilteredSubcategories(subcategories);
+    }, [filters]);
 
     return (
         <Layout>
@@ -39,18 +76,14 @@ const Subcategories = () => {
                     </div>
 
                     <div className="col-md-8">
+                        <SearchSort
+                            items={filteredSubcategories}
+                            filters={filters}
+                            setFilters={setFilters}
+                        />
+
+                        <p className="mb-3">Results: <strong>{filteredSubcategories.length}</strong></p>
                         <div className="table table-responsive">
-                            <div className="d-flex align-items-center justify-content-between mb-4">
-                                <div className="search-input">
-                                    <input type="text" className="form-control bg-light small" placeholder="Search subcategory..."
-                                           aria-label="Search" aria-describedby="basic-addon2" />
-                                </div>
-
-                                <div className="sort">
-                                    Sort
-                                </div>
-                            </div>
-
                             <table className="table" id="dataTable" width="100%" cellSpacing="0">
                                 <thead>
                                 <tr>
@@ -74,7 +107,7 @@ const Subcategories = () => {
 
                                 <tbody>
                                     <SubcategoriesList
-                                        subcategories={subcategories}
+                                        subcategories={filteredSubcategories}
                                         onDeleteSubcategories={deleteItemHandler}
                                     />
                                 </tbody>

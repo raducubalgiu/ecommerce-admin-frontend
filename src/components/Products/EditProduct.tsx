@@ -1,12 +1,14 @@
-import React, {SyntheticEvent, useRef, useState} from 'react';
-import { useHistory } from 'react-router-dom';
 import Layout from "../Layout/Layout";
 import BackButton from "../UI/BackButton";
-import SpinnerButton from "../UI/SpinnerButton";
+import React, {SyntheticEvent, useEffect, useRef, useState} from "react";
 import {CategoryModel} from "../../models/categoryModel";
+import {useHistory, useParams} from "react-router-dom";
 import {useHttpGet} from "../../api/use-http";
+import SpinnerButton from "../UI/SpinnerButton";
+import {ProductsModel} from "../../models/productsModel";
 
-const AddProduct = () => {
+const EditProduct = () => {
+    const { id } = useParams<{id:string}>();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [enteredSubCategory, setEnteredSubCategory] = useState('');
@@ -21,7 +23,6 @@ const AddProduct = () => {
     const styleRef = useRef<HTMLInputElement>(null);
     const imageRef = useRef<HTMLInputElement>(null);
     const priceRef = useRef<HTMLInputElement>(null);
-    const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'gray', 'black', 'white'];
 
     const selectedSubCategoryHandler = (e: React.FormEvent<HTMLSelectElement>) => {
         setEnteredSubCategory(e.currentTarget!.value);
@@ -39,19 +40,19 @@ const AddProduct = () => {
         setError(null);
         try {
             const res = await fetch('http://localhost:8000/api/admin/products', {
-                method: 'POST',
+                method: 'PUT',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    product_name: titleRef.current!.value,
-                    product_image: imageRef.current!.value,
-                    product_price: priceRef.current!.value,
-                    subcategory_id: enteredSubCategory,
-                    brand_id: enteredBrand,
-                    product_description: descriptionRef.current!.value,
-                    product_color: colorRef.current!.value,
-                    product_material: materialRef.current!.value,
-                    product_style: styleRef.current!.value
+                        product_name: titleRef.current!.value,
+                        product_image: imageRef.current!.value,
+                        product_price: priceRef.current!.value,
+                        subcategory_id: enteredSubCategory,
+                        brand_id: enteredBrand,
+                        product_description: descriptionRef.current!.value,
+                        product_color: colorRef.current!.value,
+                        product_material: materialRef.current!.value,
+                        product_style: styleRef.current!.value
                     }
                 )
             });
@@ -59,7 +60,7 @@ const AddProduct = () => {
             history.push('/products');
 
         } catch (e) {
-           setError(e.message);
+            setError(e.message);
         }
         setLoading(false);
     }
@@ -88,7 +89,7 @@ const AddProduct = () => {
 
     return (
         <Layout>
-            <h1 className="h3 mb-4 text-gray-800">Add Product</h1>
+            <h1 className="h3 mb-4 text-gray-800">Edit Product</h1>
 
             <div className="card shadow p-4 mb-4">
                 <form onSubmit={submitHandler}>
@@ -101,6 +102,11 @@ const AddProduct = () => {
                     <div className="form-group">
                         <label htmlFor="product_description">Description</label>
                         <input ref={descriptionRef} type="text" className="form-control" id="product_description" name="product_description" placeholder="Description" />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="product_color">Color</label>
+                        <input ref={colorRef} type="text" className="form-control" id="product_color" name="product_color" placeholder="Color" />
                     </div>
 
                     <div className="form-group">
@@ -124,11 +130,6 @@ const AddProduct = () => {
                             <span className="input-group-text">$</span>
                             <input ref={priceRef} type="text" className="form-control" id="product_price" />
                         </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="product_color">Color</label>
-                        <input ref={colorRef} type="text" className="form-control" id="product_color" name="product_color" placeholder="Color" />
                     </div>
 
                     <div className="form-group">
@@ -158,4 +159,4 @@ const AddProduct = () => {
     );
 }
 
-export default AddProduct;
+export default EditProduct;

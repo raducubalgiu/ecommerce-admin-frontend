@@ -1,25 +1,64 @@
 import Layout from "../components/Layout/Layout";
-import { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import ProductsList from "../components/Products/ProductsList";
 import {ProductsModel} from "../models/productsModel";
 import Spinner from "../components/UI/Spinner";
 import {useHttpGet} from "../api/use-http";
 import Pagination from "../components/UI/Pagination";
+import SearchSort from "../components/UI/SearchSort";
 
-const Products = () => {
-    const [products, setProducts] = useState<ProductsModel[]>([]);
+const Products = (props: { items: ProductsModel[] }) => {
+    const [allProducts, setAllProducts] = useState<ProductsModel[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<ProductsModel[]>([])
+    const [filters, setFilters] = useState({
+        s: '',
+        sort: true
+    });
 
     // The second argument from custom hook
     const applyData = (data: ProductsModel[]) => {
-        setProducts(data);
+        setAllProducts(data);
+        setFilteredProducts(data);
     }
     // Custom Hook for get requests
     const {error, loading} = useHttpGet('products', applyData);
 
     const deleteItemHandler = (id: number) => {
-        setProducts(products => products.filter(product => product.id !== id));
+        setFilteredProducts(filteredProducts => filteredProducts.filter(product => product.id !== id));
     }
+
+    useEffect(() => {
+        let products = allProducts.filter(products => products.product_name.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0 ||
+            products.product_details.product_description.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0 );
+
+        if(filters.sort === false) {
+            products.sort((a, b) => {
+                if(a.id > b.id) {
+                    return 1;
+                }
+                if(a.id < b.id) {
+                    return -1;
+                }
+
+                return 0;
+            })
+        } else if(filters.sort === true) {
+            products.sort((a, b) => {
+                if(a.id > b.id) {
+                    return -1;
+                }
+                if(a.id < b.id) {
+                    return 1;
+                }
+
+                return 0;
+            })
+        }
+
+        setFilteredProducts(products);
+
+    }, [filters]);
 
     return (
         <Layout>
@@ -28,16 +67,11 @@ const Products = () => {
                 {/* Display products */}
                 {!loading && <div className="card-content">
                     <div className="d-flex align-items-center justify-content-between mb-4">
-                        <div className="search-product d-flex align-items-center">
-                            <div className="search-input">
-                                <input type="text" className="form-control bg-light small" placeholder="Search product..."
-                                       aria-label="Search" aria-describedby="basic-addon2" />
-                            </div>
-
-                            <div className="sort-button ml-4">
-                                Sort
-                            </div>
-                        </div>
+                        <SearchSort
+                            items={filteredProducts}
+                            filters={filters}
+                            setFilters={setFilters}
+                        />
 
                         <div className="add-button">
                             <Link to="/add-product" className="btn btn-primary btn-inline">Add Product</Link>
@@ -45,6 +79,7 @@ const Products = () => {
                     </div>
 
                     <div className="row">
+                        <p className="mb-3">Results: <strong>{filteredProducts.length}</strong></p>
                         <div className="table table-responsive">
                             <table className="table" id="dataTable" width="100%" cellSpacing="0">
                                 <thead>
@@ -79,7 +114,7 @@ const Products = () => {
 
                                 <tbody>
                                 <ProductsList
-                                    products={products}
+                                    products={filteredProducts}
                                     onDeleteItem={deleteItemHandler}
                                 />
                                 </tbody>

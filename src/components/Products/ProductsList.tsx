@@ -1,5 +1,6 @@
 import {ProductsModel} from "../../models/productsModel";
 import {useHttpDelete} from "../../api/use-http";
+import { Link } from 'react-router-dom';
 
 const ProductsList = (props: {products: ProductsModel[]; onDeleteItem: (id:number) => void}) => {
 
@@ -25,7 +26,7 @@ const ProductsList = (props: {products: ProductsModel[]; onDeleteItem: (id:numbe
                     <td>{product.product_details.product_style}</td>
                     <td>{product.product_image}</td>
                     <td>${product.product_price}</td>
-                    <td><button className="btn btn-sm btn-warning">Edit</button></td>
+                    <td><Link to={`/products/${product.id}/edit`} className="btn btn-sm btn-warning">Edit</Link></td>
                     <td><button onClick={() => deleteItemHandler(product.id)} className="btn btn-sm btn-danger">Delete</button></td>
                 </tr>
             ))}

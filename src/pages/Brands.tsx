@@ -1,36 +1,69 @@
 import Layout from "../components/Layout/Layout";
 import AddBrand from "../components/Brands/AddBrand";
 import BrandsList from "../components/Brands/BrandsList";
-import {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {CategoryModel} from "../models/categoryModel";
 import Spinner from "../components/UI/Spinner";
 import Pagination from "../components/UI/Pagination";
 import {useHttpGet} from "../api/use-http";
+import SearchSort from "../components/UI/SearchSort";
 
-const Brands = () => {
-    const [brands, setBrands] = useState<CategoryModel[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
+const Brands = (props: { items: CategoryModel[] }) => {
+    const [allBrands, setAllBrands] = useState<CategoryModel[]>([]);
+    const [filteredBrands, setFilteredBrands] = useState<CategoryModel[]>([]);
+    const [filters, setFilters] = useState({
+        s: '',
+        sort: true
+    });
 
     // The second argument from custom hook
     const applyData = (data: CategoryModel[]) => {
-        setBrands(data);
+        setAllBrands(data);
+        setFilteredBrands(data);
     }
     // Custom Hook for GET request - fetching the brands
     const {error, loading} = useHttpGet('brands', applyData);
 
     // Add Brand
     const addBrandHandler = (obj: any) => {
-        setBrands(brands => brands.concat(obj));
+        setFilteredBrands(brands => brands.concat(obj));
     }
 
     // Delete Item
     const deleteItemHandler = (id:number) => {
-        setBrands((brands) => brands.filter(brand => brand.id !== id));
+        setFilteredBrands((brands) => brands.filter(brand => brand.id !== id));
     }
 
-    const filterBrandHandler = (e: React.FormEvent<HTMLInputElement>) => {
-        setSearchTerm(e.currentTarget?.value);
-    }
+    // Filtering brands
+    useEffect(() => {
+        let brands = allBrands.filter(brand => brand.name.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0);
+
+        if(filters.sort === false) {
+            brands.sort((a, b) => {
+                if(a.id > b.id) {
+                    return 1;
+                }
+                if(a.id < b.id) {
+                    return -1;
+                }
+
+                return 0;
+            })
+        } else if(filters.sort === true) {
+            brands.sort((a, b) => {
+                if(a.id > b.id) {
+                    return -1;
+                }
+                if(a.id < b.id) {
+                    return 1;
+                }
+
+                return 0;
+            })
+        }
+
+        setFilteredBrands(brands);
+    }, [filters]);
 
     return (
         <Layout>
@@ -43,17 +76,13 @@ const Brands = () => {
                     </div>
 
                     <div className="col-md-8">
-                        <div className="d-flex align-items-center justify-content-between mb-4">
-                            <div className="search-input">
-                                <input onChange={filterBrandHandler} type="text" className="form-control bg-light small" placeholder="Search brand..."
-                                       aria-label="Search" aria-describedby="basic-addon2" />
-                            </div>
+                        <SearchSort
+                            items={filteredBrands}
+                            filters={filters}
+                            setFilters={setFilters}
+                        />
 
-                            <div className="sort">
-                                Sort
-                            </div>
-                        </div>
-
+                        <p className="mb-3">Results: <strong>{filteredBrands.length}</strong></p>
                         <div className="table table-responsive">
                             <table className="table" id="dataTable" width="100%" cellSpacing="0">
                                 <thead>
@@ -78,7 +107,7 @@ const Brands = () => {
 
                                 <tbody>
                                     <BrandsList
-                                        brands={brands}
+                                        brands={filteredBrands}
                                         onDeleteItem={deleteItemHandler}
                                     />
                                 </tbody>

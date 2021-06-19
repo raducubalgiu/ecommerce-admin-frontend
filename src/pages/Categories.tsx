@@ -1,33 +1,69 @@
-import {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import CategoriesList from "../components/Categories/CategoriesList";
 import Layout from "../components/Layout/Layout";
 import {CategoryModel} from "../models/categoryModel";
 import Spinner from "../components/UI/Spinner";
 import AddCategories from "../components/Categories/AddCategories";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSortAmountDownAlt } from '@fortawesome/free-solid-svg-icons'
 import {useHttpGet} from "../api/use-http";
 import Pagination from "../components/UI/Pagination";
+import SearchSort from "../components/UI/SearchSort";
 
-const Categories = () => {
-    const [categories, setCategories] = useState<CategoryModel[]>([]);
+const Categories = (props: { items: CategoryModel[] }) => {
+    const [allCategories, setAllCategories] = useState<CategoryModel[]>([]);
+    const [filteredCategories, setFilteredCategories] = useState<CategoryModel[]>([]);
+    const [filters, setFilters] = useState({
+        s: '',
+        sort: true
+    })
 
     // Second argument for useHttpGet
     const applyData = (data: CategoryModel[]) => {
-        setCategories(data);
+        setAllCategories(data);
+        setFilteredCategories(data);
     }
     // Custom hook - get Categories
     const { error, loading } = useHttpGet('categories', applyData);
 
     // Add Category to the state
     const addCategoryHandler = (obj: any) => {
-        setCategories(categories => categories.concat(obj));
+        setFilteredCategories(categories => categories.concat(obj));
     }
 
     // Delete Item from state
     const deleteItemHandler = (id:number) => {
-        setCategories((categories) => categories.filter(category => category.id !== id));
+        setFilteredCategories((categories) => categories.filter(category => category.id !== id));
     }
+
+    useEffect(() => {
+        let categories = allCategories.filter(category => category.name.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0);
+
+        if(filters.sort === false) {
+            categories.sort((a, b) => {
+                if(a.id > b.id) {
+                    return 1;
+                }
+                if(a.id < b.id) {
+                    return -1;
+                }
+
+                return 0;
+            })
+        } else if(filters.sort === true) {
+            categories.sort((a, b) => {
+                if(a.id > b.id) {
+                    return -1;
+                }
+                if(a.id < b.id) {
+                    return 1;
+                }
+
+                return 0;
+            })
+        }
+
+        setFilteredCategories(categories);
+
+    }, [filters]);
 
     return (
         <Layout>
@@ -42,19 +78,13 @@ const Categories = () => {
                     </div>
 
                     <div className="col-md-8">
-                        <div className="d-flex align-items-center justify-content-between mb-4">
-                            <div className="search-input">
-                                <input type="text" className="form-control bg-light small" placeholder="Search category..."
-                                       aria-label="Search" aria-describedby="basic-addon2" />
-                            </div>
+                        <SearchSort
+                        items={filteredCategories}
+                        filters={filters}
+                        setFilters={setFilters}
+                        />
 
-                            <div className="sort ml-2">
-                               <button className="btn btn-outline-primary">
-                                   <FontAwesomeIcon icon={faSortAmountDownAlt}/>
-                               </button>
-                            </div>
-                        </div>
-
+                        <p className="mb-3">Results: <strong>{filteredCategories.length}</strong></p>
                         <div className="table table-responsive">
                             <table className="table" id="dataTable" width="100%" cellSpacing="0">
                                 <thead>
@@ -79,7 +109,7 @@ const Categories = () => {
 
                                 <tbody>
                                     <CategoriesList
-                                        categories={categories}
+                                        categories={filteredCategories}
                                         onDeleteItem={deleteItemHandler}
                                     />
                                 </tbody>
