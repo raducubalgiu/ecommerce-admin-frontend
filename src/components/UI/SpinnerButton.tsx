@@ -1,8 +1,8 @@
 
 
-const SpinnerButton = () => {
+const SpinnerButton = (props: {className: string}) => {
     return (
-        <button className="btn btn-primary btn-user btn-block" type="button" disabled>
+        <button className={props.className} type="button" disabled>
             <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
             <span className="sr-only">Loading...</span>
         </button>

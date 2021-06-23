@@ -1,41 +1,23 @@
 import { useState, useRef, SyntheticEvent } from 'react';
 import { Link, useHistory } from 'react-router-dom';
+import {useHttpPost} from "../api/use-http";
 
 const Login = () => {
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>();
-    const emailRef = useRef<HTMLInputElement>(null);
-    const passwordRef = useRef<HTMLInputElement>(null);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const history = useHistory();
+
+    const applyData = (data: any) => {
+        history.push('/');
+    }
+
+    const {sendData, error, loading } = useHttpPost('login', {email, password}, applyData);
 
     // Login Handler
     const loginHandler = async (event: SyntheticEvent) => {
         event.preventDefault();
-        setLoading(true);
-        setError(null);
 
-        try {
-            const response = await fetch('http://localhost:8000/api/admin/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                credentials: 'include',
-                body: JSON.stringify({
-                    email: emailRef.current!.value,
-                    password: passwordRef.current!.value
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Something went wrong!');
-            }
-            await response.json();
-            history.push('/');
-
-        } catch (e) {
-            // Error
-            setError(e.message);
-        }
-        setLoading(false);
+        sendData();
     }
 
     return (
@@ -56,11 +38,11 @@ const Login = () => {
                                                 <div className="form-group">
                                                     <input type="email" className="form-control form-control-user"
                                                            id="exampleInputEmail" aria-describedby="emailHelp"
-                                                           placeholder="Enter Email Address..." ref={emailRef} />
+                                                           placeholder="Enter Email Address..."  onChange={(e => setEmail(e.target.value))}/>
                                                 </div>
                                                 <div className="form-group">
                                                     <input type="password" className="form-control form-control-user"
-                                                           id="exampleInputPassword" placeholder="Password" ref={passwordRef} />
+                                                           id="exampleInputPassword" placeholder="Password" onChange={(e => setPassword(e.target.value))} />
                                                 </div>
 
                                                 {!loading &&

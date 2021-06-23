@@ -3,4 +3,5 @@ export interface CategoryModel {
     name:string;
     updated_at:string;
     subcategory_id:number;
+    category_id:number;
 }

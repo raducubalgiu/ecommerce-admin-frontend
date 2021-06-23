@@ -1,44 +1,31 @@
 import {SyntheticEvent, useRef, useState} from 'react';
 import { Link, useHistory } from 'react-router-dom';
+import {useHttpPost} from "../api/use-http";
 
 const Register = () => {
     const history = useHistory();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const firstNameRef = useRef<HTMLInputElement>(null);
-    const lastNameRef = useRef<HTMLInputElement>(null);
-    const emailRef = useRef<HTMLInputElement>(null);
-    const passwordRef = useRef<HTMLInputElement>(null);
-    const confirmPasswordRef = useRef<HTMLInputElement>(null);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [passwordConfirm, setPasswordConfirm] = useState('');
+
+    const applyData = (data: any) => {
+        history.push('/');
+    }
+
+    const { sendData, error, loading } = useHttpPost('register', {
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        password: password,
+        password_confirm: passwordConfirm
+    }, applyData);
 
     const submitHandler = async (event: SyntheticEvent) => {
         event.preventDefault();
 
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await fetch('http://localhost:8000/api/admin/register', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    first_name: firstNameRef.current!.value,
-                    last_name: lastNameRef.current!.value,
-                    email: emailRef.current!.value,
-                    password: passwordRef.current!.value,
-                    password_confirm: confirmPasswordRef.current!.value
-                })
-            });
-
-            if(!response.ok) {
-                throw new Error('Something went wrong!');
-            }
-
-            await response.json();
-            history.push('/');
-        } catch (e) {
-            setError(e.message);
-        }
-        setLoading(false);
+        sendData();
     }
 
     return (
@@ -57,25 +44,25 @@ const Register = () => {
                                         <div className="form-group row">
                                             <div className="col-sm-6 mb-3 mb-sm-0">
                                                 <input type="text" className="form-control form-control-user" id="exampleFirstName"
-                                                       placeholder="First Name" ref={firstNameRef} />
+                                                       placeholder="First Name" onChange={(e => setFirstName(e.target.value))} />
                                             </div>
                                             <div className="col-sm-6">
                                                 <input type="text" className="form-control form-control-user" id="exampleLastName"
-                                                       placeholder="Last Name" ref={lastNameRef}/>
+                                                       placeholder="Last Name" onChange={(e => setLastName(e.target.value))} />
                                             </div>
                                         </div>
                                         <div className="form-group">
                                             <input type="email" className="form-control form-control-user" id="exampleInputEmail"
-                                                   placeholder="Email Address" ref={emailRef} />
+                                                   placeholder="Email Address" onChange={(e => setEmail(e.target.value))} />
                                         </div>
                                         <div className="form-group row">
                                             <div className="col-sm-6 mb-3 mb-sm-0">
                                                 <input type="password" className="form-control form-control-user"
-                                                       id="exampleInputPassword" placeholder="Password" ref={passwordRef} />
+                                                       id="exampleInputPassword" placeholder="Password" onChange={(e => setPassword(e.target.value))} />
                                             </div>
                                             <div className="col-sm-6">
                                                 <input type="password" className="form-control form-control-user"
-                                                       id="exampleRepeatPassword" placeholder="Repeat Password" ref={confirmPasswordRef}/>
+                                                       id="exampleRepeatPassword" placeholder="Repeat Password" onChange={(e => setPasswordConfirm(e.target.value))} />
                                             </div>
                                         </div>
                                         {!loading &&

@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect, Dispatch} from 'react';
 import { Redirect } from 'react-router-dom';
 import Footer from "./Footer";
 import Sidebar from "./Sidebar";
 import Navbar from './Navbar';
 import {User} from "../../models/userModel";
+import {connect} from "react-redux";
+import {setUser} from "../../store/actions/setUserAction";
 
 const Layout = (props: any) => {
     const [redirect, setRedirect] = useState(false);
     const [sidebar, setSidebar] = useState(true);
-    const [user, setUser] = useState<User | null>(null);
     const toggleSidebarHandler = () => {
         setSidebar((prevState) => !prevState);
     }
@@ -22,7 +23,7 @@ const Layout = (props: any) => {
                         throw new Error('Something went wrong!');
                     }
                     const data = await res.json();
-                    setUser(data);
+                    props.setUser(data);
 
                 } catch (e) {
                     setRedirect(true);
@@ -41,7 +42,7 @@ const Layout = (props: any) => {
 
             <div id="content-wrapper" className="d-flex flex-column">
                 <div id="content">
-                    <Navbar user={user} onClick={toggleSidebarHandler}/>
+                    <Navbar onClick={toggleSidebarHandler}/>
 
                     <div className="container-fluid">
                         {props.children}
@@ -53,4 +54,12 @@ const Layout = (props: any) => {
     );
 }
 
-export default Layout;
+const mapStateToProps = (state: {user: User}) => ({
+    user: state.user
+});
+
+const mapDispatchToProps = (dispatch: Dispatch<any>) => ({
+    setUser: (user: User) => dispatch(setUser(user))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Layout);

@@ -26,11 +26,13 @@ const Brands = (props: { items: CategoryModel[] }) => {
 
     // Add Brand
     const addBrandHandler = (obj: any) => {
+        setAllBrands(brands => brands.concat(obj));
         setFilteredBrands(brands => brands.concat(obj));
     }
 
     // Delete Item
     const deleteItemHandler = (id:number) => {
+        setAllBrands((brands) => brands.filter(brand => brand.id !== id));
         setFilteredBrands((brands) => brands.filter(brand => brand.id !== id));
     }
 
@@ -38,7 +40,7 @@ const Brands = (props: { items: CategoryModel[] }) => {
     useEffect(() => {
         let brands = allBrands.filter(brand => brand.name.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0);
 
-        if(filters.sort === false) {
+        if(filters.sort === true) {
             brands.sort((a, b) => {
                 if(a.id > b.id) {
                     return 1;
@@ -49,7 +51,8 @@ const Brands = (props: { items: CategoryModel[] }) => {
 
                 return 0;
             })
-        } else if(filters.sort === true) {
+
+        } else if(filters.sort === false) {
             brands.sort((a, b) => {
                 if(a.id > b.id) {
                     return -1;
@@ -80,18 +83,18 @@ const Brands = (props: { items: CategoryModel[] }) => {
                             items={filteredBrands}
                             filters={filters}
                             setFilters={setFilters}
+                            placeholder="Search brand..."
                         />
 
-                        <p className="mb-3">Results: <strong>{filteredBrands.length}</strong></p>
                         <div className="table table-responsive">
+                            <p className="mb-3 mt-3">Results: <strong>{filteredBrands.length}</strong></p>
                             <table className="table" id="dataTable" width="100%" cellSpacing="0">
                                 <thead>
                                 <tr>
                                     <th><strong>#</strong></th>
                                     <th>Name</th>
                                     <th>Updated at</th>
-                                    <th>Edit</th>
-                                    <th>Delete</th>
+                                    <th>Edit / Delete</th>
                                 </tr>
                                 </thead>
 
@@ -100,8 +103,7 @@ const Brands = (props: { items: CategoryModel[] }) => {
                                     <th><strong>#</strong></th>
                                     <th>Name</th>
                                     <th>Updated at</th>
-                                    <th>Edit</th>
-                                    <th>Delete</th>
+                                    <th>Edit / Delete</th>
                                 </tr>
                                 </tfoot>
 

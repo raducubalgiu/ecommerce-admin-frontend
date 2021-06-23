@@ -1,6 +1,6 @@
 import React, {SyntheticEvent, useState} from "react";
 import SpinnerButton from "../UI/SpinnerButton";
-import {useHttpSend} from "../../api/use-http";
+import {useHttpPost} from "../../api/use-http";
 import {CategoryModel} from "../../models/categoryModel";
 
 const AddBrand: React.FC<{onAddBrand: (data: {}) => void}> = (props) => {
@@ -21,7 +21,7 @@ const AddBrand: React.FC<{onAddBrand: (data: {}) => void}> = (props) => {
     }
 
     // Custom Hook for sending POST requests
-    const {sendData, loading, error} = useHttpSend('brands', { name: enteredBrand }, liftBrands);
+    const {sendData, loading, error} = useHttpPost('brands', { name: enteredBrand }, liftBrands);
 
     // OnSubmit - send the request and save data in DB
     const submitHandler = async (e: SyntheticEvent) => {
@@ -36,7 +36,7 @@ const AddBrand: React.FC<{onAddBrand: (data: {}) => void}> = (props) => {
     if(enteredBrand.trim() !== '' && !loading) {
         addButton = <button type="submit" className="btn btn-primary btn-block">Add Brand</button>
     } else if(loading) {
-        addButton =  <SpinnerButton />;
+        addButton =  <SpinnerButton className="btn btn-primary btn-user btn-block" />;
     }  else {
         addButton = <button type="submit" className="btn btn-primary btn-block" disabled>Add Brand</button>
     }

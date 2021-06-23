@@ -26,13 +26,16 @@ const BrandsList = (props: { brands: CategoryModel[]; onDeleteItem: (id:number) 
                     <td>{brand.id}</td>
                     <td>{brand.name}</td>
                     <td>{new Date(brand.updated_at).toLocaleDateString()}</td>
-                    <td><Link to={`/brands/${brand.id}/edit`} className="btn btn-sm btn-warning">Edit</Link></td>
-
-                    {!loading && <td><button onClick={() => deleteHandler(brand.id)} className="btn btn-sm btn-danger">Delete</button></td>}
-                    {loading && <td><button onClick={() => deleteHandler(brand.id)} className="btn btn-sm btn-danger">
-                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-                        <span className="sr-only">Loading...</span>
-                    </button></td>}
+                    <td>
+                        <div className="buton-group">
+                            <Link to={`/brands/${brand.id}/edit`} className="btn btn-sm btn-info">Edit</Link>
+                            {!loading && <button onClick={() => deleteHandler(brand.id)} className="btn btn-sm btn-danger">Delete</button>}
+                            {loading && <button onClick={() => deleteHandler(brand.id)} className="btn btn-sm btn-danger">
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+                                <span className="sr-only">Loading...</span>
+                            </button>}
+                        </div>
+                    </td>
                 </tr>
             )) }
         </>

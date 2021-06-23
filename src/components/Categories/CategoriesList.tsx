@@ -20,8 +20,12 @@ const CategoriesList = (props: { categories: CategoryModel[]; onDeleteItem: (id:
                     <td>{category.id}</td>
                     <td>{category.name}</td>
                     <td>{new Date(category.updated_at).toLocaleDateString()}</td>
-                    <td><Link to={`/categories/${category.id}/edit`} className="btn btn-sm btn-warning">Edit</Link></td>
-                    <td><button onClick={() => deleteHandler(category.id)} className="btn btn-sm btn-danger">Delete</button></td>
+                    <td>
+                        <div className="button-group">
+                            <Link to={`/categories/${category.id}/edit`} className="btn btn-sm btn-info">Edit</Link>
+                            <button onClick={() => deleteHandler(category.id)} className="btn btn-sm btn-danger">Delete</button>
+                        </div>
+                    </td>
                 </tr>
             )) }
         </>

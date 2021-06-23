@@ -2,42 +2,41 @@ import React from 'react';
 import {SyntheticEvent, useState} from "react";
 import SpinnerButton from "../UI/SpinnerButton";
 import {CategoryModel} from "../../models/categoryModel";
-import {useHttpSend} from "../../api/use-http";
+import {useHttpGet, useHttpPost} from "../../api/use-http";
 
 const AddCategories: React.FC<{onAddCategory: (data: {}) => void}> = (props) => {
-    const [enteredCategory, setEnteredCategory] = useState('');
+    const [enteredName, setEnteredName] = useState('');
 
-    // Getting the input value and sending to the state
-    const inputChangeHandler = (e: React.FormEvent<HTMLInputElement>) => {
-        setEnteredCategory(e.currentTarget.value);
+    // Getting the subcategory name from the input and update the state
+    const enteredNameHandler = (e: React.FormEvent<HTMLInputElement>) => {
+        setEnteredName(e.currentTarget.value);
     }
 
-    // The last argument from custom hook - for sending the POST request
+    // The last argument from custom hook - for sending the POST request - Lifting the state to the SubCategoriesList component
     const liftCategories = (data: CategoryModel) => {
-        // Clear the field for the input
-        setEnteredCategory('');
-
-        // Lifting the state to the CategoriesList component
         props.onAddCategory(data);
     }
 
     // Custom Hook for sending POST requests
-    const {sendData, error, loading} = useHttpSend('categories', {name: enteredCategory}, liftCategories);
+    const {sendData, error, loading} = useHttpPost('categories', {
+        name: enteredName
+    }, liftCategories);
 
-    // Submit the form
+
+    // OnSubmit - sending the data
     const submitHandler = (e:SyntheticEvent) => {
         e.preventDefault();
 
-        // fire the http request for sending the data to the server
+        // fire the custom hook for sending the data to the server
         sendData();
     }
 
     // Validation
     let addButton;
-    if(enteredCategory.trim() !== '' && !loading) {
+    if(enteredName.trim() !== '' && !loading) {
         addButton = <button type="submit" className="btn btn-primary btn-block">Add Category</button>
     } else if(loading) {
-        addButton =  <SpinnerButton />;
+        addButton =  <SpinnerButton className="btn btn-primary btn-user btn-block" />;
     }  else {
         addButton = <button type="submit" className="btn btn-primary btn-block" disabled>Add Category</button>
     }
@@ -50,7 +49,7 @@ const AddCategories: React.FC<{onAddCategory: (data: {}) => void}> = (props) => 
             </div>}
 
             <div className="form-group">
-                <input onChange={inputChangeHandler} value={enteredCategory} type="text" className="form-control" placeholder="Insert Category.."/>
+                <input onChange={enteredNameHandler} value={enteredName} type="text" className="form-control" placeholder="Insert category.."/>
             </div>
 
             {addButton}

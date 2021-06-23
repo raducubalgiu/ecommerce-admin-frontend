@@ -27,6 +27,13 @@ const Sidebar = () => {
             </div>
 
             <li className="nav-item">
+                <NavLink className="nav-link" to="/supercategories">
+                    <FontAwesomeIcon icon={faBoxes}/>
+                    <span> Supercategories</span>
+                </NavLink>
+            </li>
+
+            <li className="nav-item">
                 <NavLink className="nav-link" to="/categories">
                     <FontAwesomeIcon icon={faBoxes}/>
                     <span> Categories</span>
@@ -61,7 +68,7 @@ const Sidebar = () => {
             </div>
 
             <li className="nav-item">
-                <NavLink className="nav-link" to="/orders">
+                <NavLink className="nav-link" to="/users">
                     <FontAwesomeIcon icon={faUserFriends}/>
                     <span>  Users</span>
                 </NavLink>

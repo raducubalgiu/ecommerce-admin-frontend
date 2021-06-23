@@ -1,45 +1,43 @@
 import Layout from "../components/Layout/Layout";
 import {User} from "../models/userModel";
-import {SyntheticEvent, useRef, useState} from "react";
-import {useHttpUser} from "../api/use-http";
+import React, {Dispatch, SyntheticEvent, useEffect, useRef, useState} from "react";
+import {useHttpPut} from "../api/use-http";
+import {connect} from "react-redux";
+import {setUser} from "../store/actions/setUserAction";
 
-const Profile = () => {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(false);
-    const firstNameRef = useRef<HTMLInputElement>(null);
-    const lastNameRef = useRef<HTMLInputElement>(null);
-    const imageRef = useRef<HTMLInputElement>(null);
+const Profile = (props: { user: User; setUser: (data: any) => void }) => {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [image, setImage] = useState('');
+    const [email, setEmail] = useState('');
 
-    // Argument for custom hook - getting the use and update de state
-    const getUser = (data: any) => {
-        setUser(data);
+    // The last argument from custom hook function (httpPut) - dispatching an action for redux to update the user and UI
+    const applyData = (data: any) => {
+        props.setUser(data);
     }
 
-    // Custom Hook for getting the user
-    useHttpUser(getUser);
+    // Custom Hook function httpPut
+    const { updateData, error, loading } = useHttpPut('users/info', {
+        first_name: firstName,
+        last_name: lastName,
+        image: image
+    }, applyData);
 
+    // Update the user
     const submitHandler = async (e: SyntheticEvent) => {
         e.preventDefault();
-        setLoading(true);
-            try {
-                const res = await fetch('http://localhost:8000/api/admin/users/info', {
-                    method: 'PUT',
-                    credentials: 'include',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        first_name: firstNameRef.current?.value,
-                        last_name: lastNameRef.current?.value,
-                        image: imageRef.current?.value
-                    })
-                });
-                const data = await res.json();
-                setUser(data);
 
-            } catch (e) {
-                // Error
-            }
-        setLoading(false);
+        // Fire updateData function from custom hook
+        updateData();
     }
+
+    // Get user data from Redux for displaying as values
+    useEffect(() => {
+        setFirstName(props.user.first_name);
+        setLastName(props.user.last_name);
+        setImage(props.user.image);
+        setEmail(props.user.email);
+    }, [props.user]);
 
     return (
         <Layout>
@@ -51,7 +49,7 @@ const Profile = () => {
                         </div>
 
                         <div className="user-information ml-3">
-                            <h3>{user?.last_name} {user?.first_name}</h3>
+                            <h3>{props.user.last_name} {props.user.first_name}</h3>
                             <span className="badge badge-pill badge-warning">Admin</span>
                         </div>
                     </div>
@@ -61,17 +59,22 @@ const Profile = () => {
                     <form onSubmit={submitHandler}>
                         <div className="form-group">
                             <label htmlFor="first_name">First Name</label>
-                            <input type="text" name="first_name" id="first_name" className="form-control" ref={firstNameRef} />
+                            <input type="text" value={firstName} name="first_name" id="first_name" className="form-control" onChange={(e => setFirstName(e.target.value))} />
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="last_name">Last Name</label>
-                            <input type="text" name="last_name" id="last_name" className="form-control" ref={lastNameRef}/>
+                            <input type="text" value={lastName} name="last_name" id="last_name" className="form-control" onChange={(e => setLastName(e.target.value))} />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="email">Email</label>
+                            <input type="email" value={email} name="email" id="email" className="form-control" onChange={(e => setEmail(e.target.value))} />
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="image">Upload avatar</label>
-                            <input type="file" className="form-control form-control-file" id="image" ref={imageRef}/>
+                            <input type="file" className="form-control form-control-file" id="image" onChange={(e => setImage(e.target.value))} />
                         </div>
 
                         {!loading && <button type="submit" className="btn btn-primary mt-2">Update Profile</button>}
@@ -88,4 +91,11 @@ const Profile = () => {
     );
 }
 
-export default Profile;
+export default connect(
+(state: {user: User}) => ({
+        user: state.user
+    }),
+    (dispatch: Dispatch<any>) => ({
+        setUser: (user: User) => dispatch(setUser(user))
+    })
+)(Profile);

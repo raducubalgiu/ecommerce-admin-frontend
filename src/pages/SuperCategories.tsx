@@ -1,16 +1,16 @@
-import React, {useEffect, useState} from 'react';
-import CategoriesList from "../components/Categories/CategoriesList";
 import Layout from "../components/Layout/Layout";
+import React, {useEffect, useState} from "react";
 import {CategoryModel} from "../models/categoryModel";
-import Spinner from "../components/UI/Spinner";
-import AddCategories from "../components/Categories/AddCategories";
 import {useHttpGet} from "../api/use-http";
-import Pagination from "../components/UI/Pagination";
 import SearchSort from "../components/UI/SearchSort";
+import Pagination from "../components/UI/Pagination";
+import Spinner from "../components/UI/Spinner";
+import SuperCategoriesList from "../components/SuperCategories/SuperCategoriesList";
+import AddSuperCategories from "../components/SuperCategories/AddSuperCategories";
 
-const Categories = (props: { items: CategoryModel[] }) => {
-    const [allCategories, setAllCategories] = useState<CategoryModel[]>([]);
-    const [filteredCategories, setFilteredCategories] = useState<CategoryModel[]>([]);
+const SuperCategories = (props: { items: CategoryModel[] }) => {
+    const [allSuperCategories, setAllSuperCategories] = useState<CategoryModel[]>([]);
+    const [filteredSuperCategories, setFilteredSuperCategories] = useState<CategoryModel[]>([]);
     const [filters, setFilters] = useState({
         s: '',
         sort: true
@@ -18,29 +18,29 @@ const Categories = (props: { items: CategoryModel[] }) => {
 
     // Second argument for useHttpGet
     const applyData = (data: CategoryModel[]) => {
-        setAllCategories(data);
-        setFilteredCategories(data);
+        setAllSuperCategories(data);
+        setFilteredSuperCategories(data);
     }
     // Custom hook - get Categories
-    const { error, loading } = useHttpGet('categories', applyData);
+    const { error, loading } = useHttpGet('supercategories', applyData);
 
     // Add Category to the state
-    const addCategoryHandler = (obj: any) => {
-        setAllCategories(categories => categories.concat(obj));
-        setFilteredCategories(categories => categories.concat(obj));
-    }
+    const addSuperCategoryHandler = (obj: any) => {
+        setAllSuperCategories(supercategories => supercategories.concat(obj));
+        setFilteredSuperCategories(supercategories => supercategories.concat(obj));
+    };
 
     // Delete Item from state
     const deleteItemHandler = (id:number) => {
-        setAllCategories((categories) => categories.filter(category => category.id !== id));
-        setFilteredCategories((categories) => categories.filter(category => category.id !== id));
+        setAllSuperCategories((supercategories) => supercategories.filter(supercategory => supercategory.id !== id));
+        setFilteredSuperCategories((supercategories) => supercategories.filter(supercategory => supercategory.id !== id));
     }
 
     useEffect(() => {
-        let categories = allCategories.filter(category => category.name.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0);
+        let supercategories = allSuperCategories.filter(supercategory => supercategory.name.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0);
 
-        if(filters.sort === true) {
-            categories.sort((a, b) => {
+        if(filters.sort) {
+            supercategories.sort((a, b) => {
                 if(a.id > b.id) {
                     return -1;
                 }
@@ -50,8 +50,8 @@ const Categories = (props: { items: CategoryModel[] }) => {
 
                 return 0;
             })
-        } else if(filters.sort === false) {
-            categories.sort((a, b) => {
+        } else if(!filters.sort) {
+            supercategories.sort((a, b) => {
                 if(a.id > b.id) {
                     return 1;
                 }
@@ -63,32 +63,32 @@ const Categories = (props: { items: CategoryModel[] }) => {
             })
         }
 
-        setFilteredCategories(categories);
+        setFilteredSuperCategories(supercategories);
 
     }, [filters]);
 
     return (
         <Layout>
-            <h1 className="h3 mb-4 text-gray-800">Categories</h1>
+            <h1 className="h3 mb-4 text-gray-800">Supercategories</h1>
             <div className="card shadow p-4">
                 {/* Display categories */}
                 {!loading && <div className="row">
                     <div className="col-md-4 mb-4">
-                        <AddCategories
-                            onAddCategory={addCategoryHandler}
+                        <AddSuperCategories
+                            onAddSuperCategories={addSuperCategoryHandler}
                         />
                     </div>
 
                     <div className="col-md-8">
                         <SearchSort
-                        items={filteredCategories}
-                        filters={filters}
-                        setFilters={setFilters}
-                        placeholder="Search category..."
+                            items={filteredSuperCategories}
+                            filters={filters}
+                            setFilters={setFilters}
+                            placeholder="Search category..."
                         />
 
                         <div className="table table-responsive">
-                            <p className="mb-3 mt-3">Results: <strong>{filteredCategories.length}</strong></p>
+                            <p className="mb-3 mt-3">Results: <strong>{filteredSuperCategories.length}</strong></p>
                             <table className="table" id="dataTable" width="100%" cellSpacing="0">
                                 <thead>
                                 <tr>
@@ -109,8 +109,8 @@ const Categories = (props: { items: CategoryModel[] }) => {
                                 </tfoot>
 
                                 <tbody>
-                                    <CategoriesList
-                                        categories={filteredCategories}
+                                    <SuperCategoriesList
+                                        supercategories={filteredSuperCategories}
                                         onDeleteItem={deleteItemHandler}
                                     />
                                 </tbody>
@@ -132,4 +132,4 @@ const Categories = (props: { items: CategoryModel[] }) => {
     );
 }
 
-export default Categories;
+export default SuperCategories;

@@ -29,30 +29,32 @@ const Products = (props: { items: ProductsModel[] }) => {
     }
 
     useEffect(() => {
-        let products = allProducts.filter(products => products.product_name.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0 ||
-            products.product_details.product_description.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0 );
+        let products = allProducts.filter(product => product.product_name.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0 ||
+            product.brand.name.toLowerCase().indexOf(filters.s.toLowerCase()) >= 0
+        );
 
-        if(filters.sort === false) {
+        if(filters.sort === true) {
             products.sort((a, b) => {
                 if(a.id > b.id) {
-                    return 1;
+                    return -1;
                 }
                 if(a.id < b.id) {
-                    return -1;
+                    return 1;
                 }
 
                 return 0;
             })
-        } else if(filters.sort === true) {
+        } else if(filters.sort === false) {
             products.sort((a, b) => {
                 if(a.id > b.id) {
-                    return -1;
+                    return 1;
                 }
                 if(a.id < b.id) {
-                    return 1;
+                    return -1;
                 }
 
                 return 0;
+
             })
         }
 
@@ -71,6 +73,7 @@ const Products = (props: { items: ProductsModel[] }) => {
                             items={filteredProducts}
                             filters={filters}
                             setFilters={setFilters}
+                            placeholder="Search product..."
                         />
 
                         <div className="add-button">
@@ -86,7 +89,7 @@ const Products = (props: { items: ProductsModel[] }) => {
                                 <tr>
                                     <th><strong>#</strong></th>
                                     <th>Title</th>
-                                    <th>Description</th>
+                                    <th>Brand</th>
                                     <th>Color</th>
                                     <th>Material</th>
                                     <th>Style</th>
@@ -101,7 +104,7 @@ const Products = (props: { items: ProductsModel[] }) => {
                                 <tr>
                                     <th><strong>#</strong></th>
                                     <th>Title</th>
-                                    <th>Description</th>
+                                    <th>Brand</th>
                                     <th>Color</th>
                                     <th>Material</th>
                                     <th>Style</th>

@@ -3,6 +3,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars, faSearch, faUser, faCogs, faSignOutAlt, faBell, faFileAlt, faEnvelope } from '@fortawesome/free-solid-svg-icons'
 import {User} from "../../models/userModel";
+import {connect} from "react-redux";
 
 const Navbar = (props: {onClick: () => void; user: User | null}) => {
     const [show, setShow] = useState(false);
@@ -163,4 +164,6 @@ const Navbar = (props: {onClick: () => void; user: User | null}) => {
     );
 }
 
-export default Navbar;
+export default connect((state: {user: User}) => ({
+    user: state.user
+}))(Navbar);

@@ -31,7 +31,7 @@ export const useHttpGet = (route:string, applyData:any) => {
     }
 }
 
-export const useHttpSend = (route:string, bodyData: {}, applyData:any) => {
+export const useHttpPost = (route:string, bodyData: {}, applyData:any) => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -60,27 +60,34 @@ export const useHttpSend = (route:string, bodyData: {}, applyData:any) => {
     }
 }
 
-export const useHttpUser = (applyData: (data: {}) => void) => {
+export const useHttpPut = (route:string, bodyData: {}, applyData:any) => {
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        (
-            async () => {
-                setError(null);
-                try {
-                    const res = await fetch('http://localhost:8000/api/admin/user', {credentials: 'include'});
-                    if(!res.ok) {
-                        throw new Error('Something went wrong!');
-                    }
-                    const data = await res.json();
-                    applyData(data);
+    const updateData = async () => {
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await fetch(`${baseUrl}/${route}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(bodyData)
+            });
+            const data = await res.json();
+            applyData(data);
 
-                } catch (e) {
-                    setError(e.message);
-                }
-            }
-        )();
-    }, []);
+        } catch (e) {
+            setError(e.message);
+        }
+        setLoading(false);
+    }
+
+    return {
+        updateData,
+        error,
+        loading
+    }
 }
 
 export const useHttpDelete = (route:string, updateState:any) => {

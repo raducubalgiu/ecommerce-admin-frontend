@@ -13,59 +13,44 @@ import AddProduct from "./components/Products/AddProduct";
 import EditCategories from "./components/Categories/EditCategories";
 import EditSubcategory from "./components/Subcategories/EditSubcategory";
 import EditProduct from "./components/Products/EditProduct";
+import Users from "./pages/Users";
+import SuperCategories from './pages/SuperCategories';
+import EditSuperCategories from "./components/SuperCategories/EditSuperCategories";
+import Orders from "./pages/Orders";
+import OrderItem from "./components/Orders/OrderItem";
 
 function App() {
   return (
       <Switch>
-            <Route path="/" exact>
-              <Home />
-            </Route>
+        {/* Home */}
+            <Route path={"/"} exact component={Home} />
+        {/* Users */}
+            <Route path={"/login"} component={Login}/>
+            <Route path={"/register"} component={Register}/>
+            <Route path={"/profile"} component={Profile} />
+            <Route path={"/users"} component={Users}/>
+        {/* Super Categories */}
+            <Route path={"/supercategories"} exact component={SuperCategories} />
+            <Route path={"/supercategories/:id/edit"} component={EditSuperCategories}/>
+        {/* Categories */}
+            <Route path={"/categories"} exact component={Categories}/>
+            <Route path={"/categories/:id/edit"} component={EditCategories}/>
+        {/* SubCategories */}
+            <Route path={"/subcategories"} exact component={Subcategories}/>
+            <Route path={"/subcategories/:id/edit"} component={EditSubcategory}/>
+        {/* Brands */}
+            <Route path={"/brands"} exact component={Brands} />
+            <Route path={"/brands/:id/edit"} component={EditBrand} />
+        {/* Products*/}
+            <Route path={'/products'} exact component={Products}/>
+            <Route path={"/products/:id/edit"} component={EditProduct}/>
+            <Route path={"/add-product"} component={AddProduct}/>
+          {/* Orders */}
+          <Route path={'/orders'} exact component={Orders} />
+          <Route path={"/orders/:id/order"} component={OrderItem}/>
 
-          <Route path="/login">
-              <Login />
-          </Route>
-
-          <Route path="/register">
-              <Register />
-          </Route>
-
-          <Route path={'/categories'} exact component={Categories} />
-
-          <Route path="/categories/:id/edit">
-              <EditCategories />
-          </Route>
-
-          <Route path="/subcategories" exact>
-              <Subcategories />
-          </Route>
-
-          <Route path="/subcategories/:id/edit">
-              <EditSubcategory />
-          </Route>
-
-          <Route path={"/brands"} exact component={Brands} />
-
-          <Route path="/brands/:id/edit">
-              <EditBrand />
-          </Route>
-
-          <Route path={'/products'} exact component={Products}/>
-
-          <Route path="/products/:id/edit">
-              <EditProduct />
-          </Route>
-
-          <Route path="/add-product">
-              <AddProduct />
-          </Route>
-
-          <Route path="/profile">
-              <Profile />
-          </Route>
-
-          <Route path="*">
-              <NotFoundPage />
-          </Route>
+      {/* Not Found Page */}
+            <Route path={"*"} component={NotFoundPage}/>
       </Switch>
   );
 }

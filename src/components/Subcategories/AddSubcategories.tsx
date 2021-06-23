@@ -1,79 +1,66 @@
 import React, {SyntheticEvent, useState} from "react";
 import {CategoryModel} from "../../models/categoryModel";
 import SpinnerButton from "../UI/SpinnerButton";
-import {useHttpGet, useHttpSend} from "../../api/use-http";
+import {useHttpGet, useHttpPost} from "../../api/use-http";
 
-const AddSubcategories: React.FC<{onAddSubcategories: (data: {}) => void;}> = (props ) => {
+const AddSubcategories = () => {
     const [enteredName, setEnteredName] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState<string | number>('');
     const [categories, setCategories] = useState<CategoryModel[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState('');
 
     // Getting the subcategory name from the input and update the state
     const enteredNameHandler = (e: React.FormEvent<HTMLInputElement>) => {
         setEnteredName(e.currentTarget.value);
     }
-
-    // Getting the category name from the select and update the state
     const selectedCategoryHandler = (e: React.FormEvent<HTMLSelectElement>) => {
-        setSelectedCategory(e.currentTarget.value);
+        setSelectedCategory(e.currentTarget!.value);
     }
 
-    // The last argument from the custom hook for fetching categories data
-    const applyCategories = (data: CategoryModel[]) => {
+    // Fetching categories
+    const applyCategories = (data: any) => {
         setCategories(data);
     }
 
-    // Custom hook for fetching the categories (GET method)
     useHttpGet('categories', applyCategories);
 
-
-    // The last argument from custom hook - for sending the POST request - Lifting the state to the SubCategoriesList component
-    const liftSubcategories = (data: CategoryModel) => {
-        props.onAddSubcategories(data);
-    }
-
-    // Custom Hook for sending POST requests
-    const {sendData, error, loading} = useHttpSend('subcategories', {
+    // Sending data
+    const {sendData, loading, error} = useHttpPost('subcategories', {
         name: enteredName,
         category_id: selectedCategory
-    }, liftSubcategories);
+    }, null);
 
-
-    // OnSubmit - sending the data
-    const submitHandler = (e:SyntheticEvent) => {
+    const submitHandler = (e: SyntheticEvent) => {
         e.preventDefault();
 
-        // fire the custom hook for sending the data to the server
         sendData();
     }
-
     // Validation
     let addButton;
-    if(enteredName.trim() !== '' && !loading && selectedCategory !== 'selected' && selectedCategory !== '') {
-        addButton = <button type="submit" className="btn btn-primary btn-block">Add SubCategory</button>
+
+    if(enteredName.trim() !== '' && !loading && selectedCategory !== 'selected' && selectedCategory > 0) {
+        addButton = <button type="submit" className="btn btn-primary btn-block">Add Subcategory</button>
     } else if(loading) {
-        addButton =  <SpinnerButton />;
+        addButton =  <SpinnerButton className="btn btn-primary btn-user btn-block" />;
     }  else {
-        addButton = <button type="submit" className="btn btn-primary btn-block" disabled>Add SubCategory</button>
+        addButton = <button type="submit" className="btn btn-primary btn-block" disabled>Add Category</button>
     }
 
     return (
         <form onSubmit={submitHandler}>
-            {!loading && error &&
-            <div className="alert alert-danger" role="alert">
-                {error}
+            {!loading && error && <div className="alert alert-danger" role="alert">
+                <p>{error}</p>
             </div>}
 
             <div className="form-group">
-                <input onChange={enteredNameHandler} value={enteredName} type="text" className="form-control" placeholder="Insert subcategory.."/>
+                <input onChange={enteredNameHandler} type="text" className="form-control" placeholder="Insert subcategory.."/>
             </div>
 
             <div className="form-group">
-                <select onChange={selectedCategoryHandler} className="form-select" aria-label="Default select example">
-                    <option value={"selected"}>Select category</option>
+                <select onChange={selectedCategoryHandler} className="form-select">
+                    <option selected value={"selected"}>Select Category</option>
                     {categories.map(category => (
-                        <option key={category.id} value={category.id}>{category.name}</option>
-                    )) }
+                        <option className="form-select" value={category.id}>{category.name}</option>
+                    ))}
                 </select>
             </div>
 

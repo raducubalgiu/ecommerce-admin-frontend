@@ -4,4 +4,6 @@ export interface ProductsModel {
     product_image:string;
     product_price:number;
     product_details: any;
+    supercategory: any;
+    brand: any;
 }

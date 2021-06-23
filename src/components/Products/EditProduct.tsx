@@ -1,11 +1,10 @@
 import Layout from "../Layout/Layout";
 import BackButton from "../UI/BackButton";
-import React, {SyntheticEvent, useEffect, useRef, useState} from "react";
+import React, {SyntheticEvent, useRef, useState} from "react";
 import {CategoryModel} from "../../models/categoryModel";
 import {useHistory, useParams} from "react-router-dom";
 import {useHttpGet} from "../../api/use-http";
 import SpinnerButton from "../UI/SpinnerButton";
-import {ProductsModel} from "../../models/productsModel";
 
 const EditProduct = () => {
     const { id } = useParams<{id:string}>();
@@ -84,7 +83,7 @@ const EditProduct = () => {
     let addButton = <button type="submit" className="btn btn-primary">Add SubCategory</button>;
 
     if(loading) {
-        addButton =  <SpinnerButton />;
+        addButton =  <SpinnerButton className="btn btn-primary btn-user btn-block" />;
     }
 
     return (

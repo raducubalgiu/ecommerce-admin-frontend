@@ -1,0 +1,25 @@
+.list-group {
+    width: 100%;
+}
+
+.list-group li {
+    display: block;
+    width: 100%;
+}
+
+.main-list a {
+    background-color: #2e59d9;
+    width: 100%;
+}
+
+.second-list-item {
+    border: .1rem solid #eee;
+    border-radius: .2rem;
+    padding: .75rem;
+}
+
+@media (max-width: 767.98px) {
+    .list-group {
+        margin-left: 0 !important;
+    }
+}

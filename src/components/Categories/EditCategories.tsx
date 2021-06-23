@@ -48,7 +48,7 @@ const EditCategories = () => {
     if(enteredCategory.trim() !== '' && !loading) {
         addButton = <button type="submit" className="btn btn-primary btn-block">Update Category</button>
     } else if(loading) {
-        addButton =  <SpinnerButton />;
+        addButton =  <SpinnerButton className="btn btn-primary btn-user btn-block" />;
     }  else {
         addButton = <button type="submit" className="btn btn-primary btn-block" disabled>Update Category</button>
     }

@@ -2,88 +2,108 @@ import React, {SyntheticEvent, useRef, useState} from 'react';
 import { useHistory } from 'react-router-dom';
 import Layout from "../Layout/Layout";
 import BackButton from "../UI/BackButton";
-import SpinnerButton from "../UI/SpinnerButton";
 import {CategoryModel} from "../../models/categoryModel";
-import {useHttpGet} from "../../api/use-http";
+import {useHttpGet, useHttpPost} from "../../api/use-http";
+import SpinnerButton from "../UI/SpinnerButton";
+
+const COLORS = [{name: 'red'}, {name: 'orange'}, {name: 'yellow'}, {name: 'green'}, {name: 'blue'}, {name: 'purple'}, {name: 'pink'}, {name: 'brown'}, {name: 'gray'}, {name: 'black'}, {name: 'white'}];
+const STYLES = [{name: 'Casual'}, {name: 'Office'}];
+const MATERIALS = [{name: 'Cotton'}, {name: 'Denim'}, {name: 'In'}, {name: 'Poliester'}, {name: 'Reiat'}, {name: 'Synthetic'}];
 
 const AddProduct = () => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [enteredSubCategory, setEnteredSubCategory] = useState('');
-    const [enteredBrand, setEnteredBrand] = useState('');
+    const [supercategories, setSuperCategories] = useState<CategoryModel[]>([]);
+    const [categories, setCategories] = useState<CategoryModel[]>([]);
     const [subcategories, setSubcategories] = useState<CategoryModel[]>([]);
     const [brands, setBrands] = useState<CategoryModel[]>([]);
+    const [title, setTitle] = useState('');
+    const [material, setMaterial] = useState('');
+    const [style, setStyle] = useState('');
+    const [image, setImage] = useState('');
+    const [price, setPrice] = useState('');
+    const [color, setColor] = useState('');
+    const [superCategory, setSuperCategory] = useState('');
+    const [category, setCategory] = useState('');
+    const [subCategory, setSubCategory] = useState('');
+    const [brand, setBrand] = useState('');
     const history = useHistory();
-    const titleRef = useRef<HTMLInputElement>(null);
-    const descriptionRef = useRef<HTMLInputElement>(null);
-    const colorRef = useRef<HTMLInputElement>(null);
-    const materialRef = useRef<HTMLInputElement>(null);
-    const styleRef = useRef<HTMLInputElement>(null);
-    const imageRef = useRef<HTMLInputElement>(null);
-    const priceRef = useRef<HTMLInputElement>(null);
-    const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'gray', 'black', 'white'];
 
-    const selectedSubCategoryHandler = (e: React.FormEvent<HTMLSelectElement>) => {
-        setEnteredSubCategory(e.currentTarget!.value);
+    const selectedSupercategoryHandler = (e: React.FormEvent<HTMLSelectElement>) => {
+        setSuperCategory(e.currentTarget!.value);
     }
-
+    const selectedCategoryHandler = (e: React.FormEvent<HTMLSelectElement>) => {
+        setCategory(e.currentTarget!.value);
+    }
+    const selectedSubcategoryHandler = (e: React.FormEvent<HTMLSelectElement>) => {
+        setSubCategory(e.currentTarget!.value);
+    }
     const selectedBrandHandler = (e: React.FormEvent<HTMLSelectElement>) => {
-        setEnteredBrand(e.currentTarget!.value);
+        setBrand(e.currentTarget!.value);
+    }
+    const selectedColorHandler = (e: React.FormEvent<HTMLSelectElement>) => {
+        setColor(e.currentTarget!.value);
+    }
+    const selectedStyleHandler = (e: React.FormEvent<HTMLSelectElement>) => {
+        setStyle(e.currentTarget!.value);
+    }
+    const selectedMaterialHandler = (e: React.FormEvent<HTMLSelectElement>) => {
+        setMaterial(e.currentTarget!.value);
     }
 
-    const submitHandler = async (e: SyntheticEvent) => {
-        e.preventDefault();
-
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await fetch('http://localhost:8000/api/admin/products', {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    product_name: titleRef.current!.value,
-                    product_image: imageRef.current!.value,
-                    product_price: priceRef.current!.value,
-                    subcategory_id: enteredSubCategory,
-                    brand_id: enteredBrand,
-                    product_description: descriptionRef.current!.value,
-                    product_color: colorRef.current!.value,
-                    product_material: materialRef.current!.value,
-                    product_style: styleRef.current!.value
-                    }
-                )
-            });
-            await res.json();
-            history.push('/products');
-
-        } catch (e) {
-           setError(e.message);
-        }
-        setLoading(false);
+    // Fetching Super Categories
+    const applySuperCategories = (data: CategoryModel[]) => {
+        setSuperCategories(data);
     }
+    useHttpGet('supercategories', applySuperCategories);
 
-    // The second argument for custom hook - fetching subcategories
+    // Fetching Categories
+    const applyCategories = (data: CategoryModel[]) => {
+        setCategories(data);
+    }
+    useHttpGet('categories', applyCategories);
+
+    // Fetching Sub Categories
     const applySubcategories = (data: CategoryModel[]) => {
         setSubcategories(data);
     }
-
-    // Fetching subcategories for select option - relation between products and subcategories
     useHttpGet('subcategories', applySubcategories);
 
-    // The second argument for custom hook - fetching brands
+    // Fetching Brands
     const applyBrands = (data: CategoryModel[] ) => {
         setBrands(data);
     }
-
-    // Fetching brands for select option - relation between products and brands
     useHttpGet('brands', applyBrands);
 
-    let addButton = <button type="submit" className="btn btn-primary">Add SubCategory</button>;
+    const applyData = (data: any) => {
+        history.push('/products');
+    }
+
+    // Sending data
+    const { sendData, loading } = useHttpPost('products', {
+        product_name: title,
+        product_image: image,
+        product_price: price,
+        supercategory_id: superCategory,
+        category_id: category,
+        subcategory_id: subCategory,
+        brand_id: brand,
+        product_color: color,
+        product_material: material,
+        product_style: style
+
+    }, applyData);
+
+    // Submit Handler - send data
+    const submitHandler = async (e: SyntheticEvent) => {
+        e.preventDefault();
+
+        sendData();
+    }
+
+    // Validation for brand input
+    let addButton = <button type="submit" className="btn btn-primary">Add Brand</button>;
 
     if(loading) {
-        addButton =  <SpinnerButton />;
+        addButton = <SpinnerButton className="btn btn-primary btn-user" />
     }
 
     return (
@@ -92,47 +112,71 @@ const AddProduct = () => {
 
             <div className="card shadow p-4 mb-4">
                 <form onSubmit={submitHandler}>
-                    {error && <p>{error}</p>}
                     <div className="form-group">
                         <label htmlFor="product_name">Title</label>
-                        <input ref={titleRef} type="text" className="form-control" id="product_name" placeholder="Title" />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="product_description">Description</label>
-                        <input ref={descriptionRef} type="text" className="form-control" id="product_description" name="product_description" placeholder="Description" />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="product_material">Material</label>
-                        <input ref={materialRef} type="text" className="form-control" id="product_material" name="product_material" placeholder="Material" />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="product_style">Style</label>
-                        <input ref={styleRef} type="text" className="form-control" id="product_style" name="product_style" placeholder="Style" />
+                        <input onChange={e => setTitle(e.target.value)} type="text" className="form-control" id="product_name" placeholder="Title" />
                     </div>
 
                     <div className="form-group">
                         <label htmlFor="product_image">Image</label>
-                        <input ref={imageRef} type="file" className="form-control form-control-file" id="product_image" />
+                        <input onChange={e => setImage(e.target.value)} type="file" className="form-control form-control-file" id="product_image" />
                     </div>
 
                     <div className="form-group">
                         <label htmlFor="product_price">Price</label>
                         <div className="input-group mb-3">
                             <span className="input-group-text">$</span>
-                            <input ref={priceRef} type="text" className="form-control" id="product_price" />
+                            <input onChange={e => setPrice(e.target.value)} type="text" className="form-control" id="product_price" />
                         </div>
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="product_color">Color</label>
-                        <input ref={colorRef} type="text" className="form-control" id="product_color" name="product_color" placeholder="Color" />
+                        <select onChange={selectedMaterialHandler} className="form-select">
+                            <option selected value={"selected"}>Select material</option>
+                            {MATERIALS.map(material => (
+                                <option className="form-select" value={material.name}>{material.name}</option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className="form-group">
-                        <select onChange={selectedSubCategoryHandler} className="form-select">
+                        <select onChange={selectedStyleHandler} className="form-select">
+                            <option selected value={"selected"}>Select style</option>
+                            {STYLES.map(style => (
+                                <option className="form-select" value={style.name}>{style.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <select onChange={selectedColorHandler} className="form-select">
+                            <option selected value={"selected"}>Select color</option>
+                            {COLORS.map(color => (
+                                <option className="form-select" value={color.name}>{color.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <select onChange={selectedSupercategoryHandler} className="form-select">
+                            <option selected value={"selected"}>Select supercategory</option>
+                            {supercategories.map(supercategory => (
+                                <option className="form-select" value={supercategory.id}>{supercategory.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <select onChange={selectedCategoryHandler} className="form-select">
+                            <option selected value={"selected"}>Select Category</option>
+                            {categories.map(category => (
+                                <option className="form-select" value={category.id}>{category.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <select onChange={selectedSubcategoryHandler} className="form-select">
                             <option selected value={"selected"}>Select subcategory</option>
                             {subcategories.map(subcategory => (
                                 <option className="form-select" value={subcategory.id}>{subcategory.name}</option>
