@@ -6,4 +6,5 @@ export interface ProductsModel {
     product_details: any;
     supercategory: any;
     brand: any;
+    average_review: number;
 }

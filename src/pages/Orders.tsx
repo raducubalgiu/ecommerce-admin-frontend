@@ -6,6 +6,7 @@ import OrdersList from "../components/Orders/OrdersList";
 import Spinner from "../components/UI/Spinner";
 import SearchSort from "../components/UI/SearchSort";
 import {Link} from "react-router-dom";
+import { setupMaster } from 'cluster';
 
 const Orders = () => {
     const [allOrders, setAllOrders] = useState<Order[]>([]);
@@ -55,7 +56,10 @@ const Orders = () => {
 
     }, [filters]);
 
-
+    let total_revenue = 0;
+    allOrders.map(order => (
+        total_revenue += order.subscriber_sales
+    ));
 
     return (
         <Layout>
@@ -71,7 +75,7 @@ const Orders = () => {
 
                     <div className="overview">
                         <p className="mb-3">Total Orders: <strong>{allOrders.length}</strong></p>
-                        <p className="mb-3">Orders Revenue: <strong>#N/A</strong></p>
+                        <p className="mb-3">Orders Revenue: <strong>${new Intl.NumberFormat().format(total_revenue)}</strong></p>
                     </div>
                 </div>
 

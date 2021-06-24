@@ -11,7 +11,7 @@ const UsersList = (props: { users: User[] }) => {
                     <td>{user.last_name}</td>
                     <td>{user.email}</td>
                     <td>{new Date(user.created_at).toLocaleDateString()}</td>
-                    <td></td>
+                    <td>${user.subscriber_sales}</td>
                 </tr>
             )) }
         </>
